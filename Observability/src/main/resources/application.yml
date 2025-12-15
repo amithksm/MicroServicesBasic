@@ -1,0 +1,50 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: observability-demo
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        # Expose all actuator endpoints including prometheus
+        include: "*"
+      base-path: /actuator
+  
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  
+  # Metrics configuration
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        external.service.duration: true
+      slo:
+        http.server.requests: 100ms,200ms,500ms,1s,2s
+  
+  # Tracing (optional, for distributed tracing)
+  tracing:
+    sampling:
+      probability: 1.0
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    '[com.ak.microservice]': DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/application.log
